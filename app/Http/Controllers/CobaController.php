@@ -27,6 +27,7 @@ class CobaController extends Controller
             'nama' => 'required|unique:friends|max:255',
             'no_tlp' => 'required|numeric',
             'alamat' => 'required',
+            'groups_id' => 'required',
         ]);
 
         $friends = new Friends;

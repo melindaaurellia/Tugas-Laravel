@@ -16,7 +16,7 @@
     <form action="/friends/{{ $friend['id'] }}" method="POST">
     @csrf
     @method('DELETE')
-    <button class="card-link btn-danger">Delete Teman</a>
+    <button class="card-link btn-danger">Delete Teman</button>
     </form>
   </div>
 </div>
