@@ -15,7 +15,7 @@ class CobaController extends Controller
      */
     public function index()
     {
-        $friends = Friends::orderby('id', 'desc') -> paginate(3);
+        $friends = Friends::all();
 
         return response()->json([
             'success' => true,
@@ -96,11 +96,10 @@ class CobaController extends Controller
         ]);
         return response()->json([
             'success' => true,
-            'message' => 'Data Teman berhasil di rubah',
+            'message' => 'Post Updated',
             'data' => $friend
         ], 200);
     }
-
     /**
      * Remove the specified resource from storage.
      *
@@ -109,11 +108,12 @@ class CobaController extends Controller
      */
     public function destroy($id)
     {
+        $cek = Friends::find($id)->delete();
         $friend = Friends::find($id)->delete();
         return response()->json([
             'success' => true,
-            'message' => 'Data Teman Berhasil di hapus',
+            'message' => 'Post Updated',
             'data'    => $friend
         ], 200);
     }
-}
+} 

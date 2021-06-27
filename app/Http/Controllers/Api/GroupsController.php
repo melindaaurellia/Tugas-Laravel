@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
+
 use App\Models\Groups;
-use App\Models\Friends;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class GroupsController extends Controller
@@ -12,21 +13,15 @@ class GroupsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-     public function index()
+    public function index()
     {
         $groups = Groups::orderby('id', 'desc') -> paginate(3);
 
-        return view('groups.index', compact('groups'));
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        return view('groups.create');
+        return response()->json([
+            'success' => true,
+            'message' => 'Daftar Data Group',
+            'data' => $groups
+        ], 200);
     }
 
     /**
@@ -39,16 +34,28 @@ class GroupsController extends Controller
     {
         $request->validate([
             'name' => 'required|unique:groups|max:255',
-            'description' => 'required',
+            'description' => 'required|numeric',
         ]);
 
-        $group = new Groups;
+        $g = Groups::create([
+            'name' => $request->name,
+            'description' => $request->description,
+        ]);
 
-        $group->name = $request->name;
-        $group->description = $request->description;
-        $group->save();
-
-        return redirect('/groups');
+        if($groups)
+        {
+            return response()->json([
+                'success' => true,
+                'message' => 'Group Berhasil Ditambahkan',
+                'data' => $groups
+            ], 200);
+        }else{
+            return response()->json([
+                'success' => false,
+                'message' => 'Group Gagal Ditambahkan',
+                'data' => $groups
+            ], 409);
+        }
     }
 
     /**
@@ -59,20 +66,13 @@ class GroupsController extends Controller
      */
     public function show($id)
     {
-        $group = Groups::where('id', $id)->first();
-        return view('groups.show', ['group' => $group]);
-    }
+          $group = Groups::where('id', $id)->first();
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        $group = Groups::where('id', $id)->first();
-        return view('groups.edit', ['group' => $group]);
+          return response()->json([
+            'success' => true,
+            'message' => 'Detail data Group',
+            'data' => $group
+        ], 200);
     }
 
     /**
@@ -84,12 +84,15 @@ class GroupsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        Groups::find($id)->update([
+        $groups = Groups::find($id)->update([
             'name' => $request->name,
-            'description' => $request->description
+            'description' => $request->description,
         ]);
-
-        return redirect('/groups');
+        return response()->json([
+            'success' => true,
+            'message' => 'Data Group berhasil di rubah',
+            'data' => $group
+        ], 200);
     }
 
     /**
@@ -100,35 +103,11 @@ class GroupsController extends Controller
      */
     public function destroy($id)
     {
-        Groups::find($id)->delete();
-        return redirect('/groups');
+        $group = Groups::find($id)->delete();
+        return response()->json([
+            'success' => true,
+            'message' => 'Data Teman Berhasil di hapus',
+            'data'    => $group
+        ], 200);
     }
-
-    public function addmember($id)
-    {
-        $friend = Friends::where('groups_id', '=', 0)->get();
-        $group = Groups::where('id', $id)->first();
-        return view('groups.addmember', ['group' => $group, 'friend' => $friend]);
-    }
-
-    public function updateaddmember(Request $request, $id)
-    {
-        $friend = Friends::where('id', $request->friend_id)->first();
-        Friends::find($friend->id)->update([
-            'groups_id' => $id
-        ]);
-
-        return redirect('/groups/addmember/'. $id);
-    }
-
-    public function deleteaddmember(Request $request, $id)
-    {
-       
-        Friends::find($id)->update([
-            'groups_id' => 0
-        ]);
-
-        return redirect('/groups');
-    }
-
 }
